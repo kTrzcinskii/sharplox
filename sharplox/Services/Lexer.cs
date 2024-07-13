@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using sharplox.Tokens;
 
-namespace sharplox;
+namespace sharplox.Services;
 
 public class Lexer
 {
