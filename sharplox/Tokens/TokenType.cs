@@ -1,4 +1,4 @@
-﻿namespace sharplox;
+﻿namespace sharplox.Tokens;
 
 public enum TokenType
 {

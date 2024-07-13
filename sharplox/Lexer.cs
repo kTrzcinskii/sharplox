@@ -1,18 +1,19 @@
 ﻿using System.Globalization;
+using sharplox.Tokens;
 
 namespace sharplox;
 
 public class Lexer
 {
     private readonly string _source;
-    private readonly List<Token> _tokens = new List<Token>();
+    private readonly List<Token> _tokens = [];
     // start of currently considered lexeme
     private int _start = 0;
     // end of currently considered lexeme (exclusive)
     private int _current = 0;
     private int _line = 1;
 
-    private static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>()
+    private static readonly Dictionary<string, TokenType> Keywords = new()
     {
         {"and", TokenType.AND},
         {"class", TokenType.CLASS},

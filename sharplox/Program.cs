@@ -1,4 +1,6 @@
-﻿namespace sharplox;
+﻿using sharplox.Tools;
+
+namespace sharplox;
 
 public class Program
 {
@@ -7,7 +9,7 @@ public class Program
         if (args.Length > 1)
         {
             Console.WriteLine("Usage: sharplox [script]");
-            Utils.Exit(ExitCode.INVALID_USAGE);
+            Utils.Exit(Utils.ExitCode.INVALID_USAGE);
         }
         Lox.Initialize(args);
     }

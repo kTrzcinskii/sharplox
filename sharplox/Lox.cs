@@ -1,4 +1,6 @@
-﻿namespace sharplox; 
+﻿using sharplox.Tools;
+
+namespace sharplox; 
 
 public class Lox
 {
@@ -20,7 +22,7 @@ public class Lox
         Run(source);
         if (_inErrorState)
         {
-            Utils.Exit(ExitCode.CODE_ERROR);
+            Utils.Exit(Utils.ExitCode.CODE_ERROR);
         }
     }
     
