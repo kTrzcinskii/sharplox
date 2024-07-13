@@ -1,0 +1,51 @@
+﻿using System.Text;
+using sharplox.Expressions;
+
+namespace sharplox.Tools;
+
+public class AstPrinter : ExpressionVisitor<string>
+{
+    public string PrintAstTree(Expression head)
+    {
+        return head.Accept(this);
+    }
+    
+    public string VisitBinaryExpression(BinaryExpression binaryExpression)
+    {
+        return Parenthesize(binaryExpression.Operator.Lexeme, binaryExpression.Left, binaryExpression.Right);
+    }
+
+    public string VisitGroupingExpression(GroupingExpression groupingExpression)
+    {
+        return Parenthesize("group", groupingExpression.Expression);
+    }
+
+    public string VisitLiteralExpression(LiteralExpression literalExpression)
+    {
+        if (literalExpression.Value == null)
+        {
+            return "nil";
+        }
+
+        return literalExpression.Value.ToString() ?? "nil";
+    }
+
+    public string VisitUnaryExpression(UnaryExpression unaryExpression)
+    {
+        return Parenthesize(unaryExpression.Operator.Lexeme, unaryExpression.Right);
+    }
+
+    private string Parenthesize(string name, params Expression[] expressions)
+    {
+        var sb = new StringBuilder();
+        sb.Append('(');
+        sb.Append(name);
+        foreach (var expression in expressions)
+        {
+            sb.Append(' ');
+            sb.Append(expression.Accept(this));
+        }
+        sb.Append(')');
+        return sb.ToString();
+    }
+}
