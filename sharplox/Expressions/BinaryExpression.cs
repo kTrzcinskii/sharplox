@@ -2,14 +2,14 @@
 
 namespace sharplox.Expressions;
 
-public class BinaryExpression : Expression
+public class BinaryExpression : BaseExpression
 {
-    public Expression Left { get; }
-    public Expression Right { get; }
+    public BaseExpression Left { get; }
+    public BaseExpression Right { get; }
     public Token Operator { get; }
 
 
-    public BinaryExpression(Expression left, Expression right, Token @operator)
+    public BinaryExpression(BaseExpression left, BaseExpression right, Token @operator)
     {
         Left = left;
         Right = right;

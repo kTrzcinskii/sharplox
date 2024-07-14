@@ -1,6 +1,6 @@
 ﻿namespace sharplox.Expressions;
 
-public class LiteralExpression : Expression
+public class LiteralExpression : BaseExpression
 {
     public object? Value { get; }
 

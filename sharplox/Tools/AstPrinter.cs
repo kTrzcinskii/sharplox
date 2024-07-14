@@ -5,7 +5,7 @@ namespace sharplox.Tools;
 
 public class AstPrinter : ExpressionVisitor<string>
 {
-    public string PrintAstTree(Expression head)
+    public string PrintAstTree(BaseExpression head)
     {
         return head.Accept(this);
     }
@@ -17,7 +17,7 @@ public class AstPrinter : ExpressionVisitor<string>
 
     public string VisitGroupingExpression(GroupingExpression groupingExpression)
     {
-        return Parenthesize("group", groupingExpression.Expression);
+        return Parenthesize("group", groupingExpression.BaseExpression);
     }
 
     public string VisitLiteralExpression(LiteralExpression literalExpression)
@@ -35,7 +35,7 @@ public class AstPrinter : ExpressionVisitor<string>
         return Parenthesize(unaryExpression.Operator.Lexeme, unaryExpression.Right);
     }
 
-    private string Parenthesize(string name, params Expression[] expressions)
+    private string Parenthesize(string name, params BaseExpression[] expressions)
     {
         var sb = new StringBuilder();
         sb.Append('(');

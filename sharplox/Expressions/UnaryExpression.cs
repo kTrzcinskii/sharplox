@@ -2,13 +2,13 @@
 
 namespace sharplox.Expressions;
 
-public class UnaryExpression : Expression
+public class UnaryExpression : BaseExpression
 {
-    public Expression Right { get; }
+    public BaseExpression Right { get; }
     public Token Operator { get; }
 
 
-    public UnaryExpression(Expression right, Token @operator)
+    public UnaryExpression(BaseExpression right, Token @operator)
     {
         Right = right;
         Operator = @operator;

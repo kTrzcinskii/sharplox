@@ -1,12 +1,12 @@
 ﻿namespace sharplox.Expressions;
 
-public class GroupingExpression : Expression
+public class GroupingExpression : BaseExpression
 {
-    public Expression Expression { get; }
+    public BaseExpression BaseExpression { get; }
 
-    public GroupingExpression(Expression expression)
+    public GroupingExpression(BaseExpression expression)
     {
-        Expression = expression;
+        BaseExpression = expression;
     }
 
     public override T Accept<T>(ExpressionVisitor<T> visitor)
