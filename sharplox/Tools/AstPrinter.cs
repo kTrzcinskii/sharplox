@@ -3,7 +3,7 @@ using sharplox.Expressions;
 
 namespace sharplox.Tools;
 
-public class AstPrinter : ExpressionVisitor<string>
+public class AstPrinter : IExpressionVisitor<string>
 {
     public string PrintAstTree(BaseExpression head)
     {

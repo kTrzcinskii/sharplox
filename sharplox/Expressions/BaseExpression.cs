@@ -2,5 +2,5 @@
 
 public abstract class BaseExpression
 {
-    public abstract T Accept<T>(ExpressionVisitor<T> visitor);
+    public abstract T Accept<T>(IExpressionVisitor<T> visitor);
 }

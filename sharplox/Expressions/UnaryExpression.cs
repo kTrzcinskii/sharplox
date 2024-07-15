@@ -14,7 +14,7 @@ public class UnaryExpression : BaseExpression
         Operator = @operator;
     }
 
-    public override T Accept<T>(ExpressionVisitor<T> visitor)
+    public override T Accept<T>(IExpressionVisitor<T> visitor)
     {
         return visitor.VisitUnaryExpression(this);
     }

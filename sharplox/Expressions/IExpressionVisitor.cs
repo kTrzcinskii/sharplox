@@ -1,6 +1,6 @@
 ﻿namespace sharplox.Expressions;
 
-public interface ExpressionVisitor<T>
+public interface IExpressionVisitor<T>
 {
     public T VisitBinaryExpression(BinaryExpression binaryExpression);
     public T VisitGroupingExpression(GroupingExpression groupingExpression);

@@ -9,7 +9,7 @@ public class GroupingExpression : BaseExpression
         BaseExpression = expression;
     }
 
-    public override T Accept<T>(ExpressionVisitor<T> visitor)
+    public override T Accept<T>(IExpressionVisitor<T> visitor)
     {
         return visitor.VisitGroupingExpression(this);
     }
