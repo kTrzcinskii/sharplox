@@ -1,4 +1,5 @@
 ﻿using sharplox.Services;
+using sharplox.Tokens;
 using sharplox.Tools;
 
 namespace sharplox; 
@@ -44,16 +45,31 @@ public class Lox
     {
         var scanner = new Lexer(source);
         var tokens = scanner.ScanTokens();
+
+        var parser = new Parser(tokens);
+        var expression = parser.Parse();
+
+        if (_inErrorState)
+            return;
         
-        foreach (var token in tokens)
-        {
-            Console.WriteLine(token);
-        }
+        Console.WriteLine(new AstPrinter().PrintAstTree(expression!));
     }
 
     public static void Error(int line, string message)
     {
         Report(line, "", message);
+    }
+    
+    public static void Error(Token token, string message)
+    {
+        if (token.Type == TokenType.EOF)
+        {
+            Report(token.Line, "at end", message);
+        }
+        else
+        {
+            Report(token.Line, $"at '{token.Lexeme}'", message);
+        }
     }
 
     private static void Report(int line, string where, string message)

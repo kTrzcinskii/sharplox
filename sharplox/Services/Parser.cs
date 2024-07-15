@@ -1,4 +1,5 @@
-﻿using sharplox.Expressions;
+﻿using sharplox.Errors;
+using sharplox.Expressions;
 using sharplox.Tokens;
 
 namespace sharplox.Services;
@@ -12,6 +13,18 @@ public class Parser
     public Parser(List<Token> tokens)
     {
         _tokens = tokens;
+    }
+
+    public BaseExpression? Parse()
+    {
+        try
+        {
+            return Expression();
+        }
+        catch (ParseException ex)
+        {
+            return null;
+        }
     }
 
     private Token Peek()
@@ -123,11 +136,46 @@ public class Parser
         if (MatchCurrent(TokenType.LEFT_PAREN))
         {
             BaseExpression expression = Expression();
-            // TODO: create this function
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression");
             return new GroupingExpression(expression);
         }
-        
-        // TODO: throw an error here
+
+        throw ParseError(Peek(), "Expect beginning of expression");
+    }
+
+    private Token Consume(TokenType type, string message)
+    {
+        if (CheckCurrent(type))
+            Advance();
+        throw ParseError(Peek(), message);
+    }
+
+    private ParseException ParseError(Token token, string message)
+    {
+        Lox.Error(token, message);
+        return new ParseException();
+    }
+
+    private void Synchronize()
+    {
+        Advance();
+        while (!IsAtEnd())
+        {
+            if (Previous().Type == TokenType.SEMICOLON)
+                return;
+            switch (Peek().Type)
+            {
+                case TokenType.CLASS:
+                case TokenType.FUN:
+                case TokenType.VAR:
+                case TokenType.FOR:
+                case TokenType.IF:
+                case TokenType.WHILE:
+                case TokenType.PRINT:
+                case TokenType.RETURN:
+                    return;
+            }
+            Advance();
+        }
     }
 }
