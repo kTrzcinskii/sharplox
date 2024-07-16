@@ -43,6 +43,7 @@ public class Interpreter : IExpressionVisitor<object?>
                 throw new RuntimeException(binaryExpression.Operator, "Operands must be both strings or both numbers");
             case TokenType.SLASH:
                 AssertNumberOperands(binaryExpression.Operator, left, right);
+                AssertLegalDivision(binaryExpression.Operator, (double)left, (double)right);
                 return (double)left / (double)right;
             case TokenType.STAR:
                 AssertNumberOperands(binaryExpression.Operator, left, right);
@@ -130,6 +131,13 @@ public class Interpreter : IExpressionVisitor<object?>
         if (lhs is double && rhs is double)
             return;
         throw new RuntimeException(op, "Operands must be numbers.");
+    }
+
+    private void AssertLegalDivision(Token op, double lhs, double rhs)
+    {
+        if (rhs != 0)
+            return;
+        throw new RuntimeException(op, "Division by 0 is forbidden.");
     }
 
     private string Stringify(object? value)
