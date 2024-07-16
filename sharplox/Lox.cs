@@ -1,4 +1,5 @@
-﻿using sharplox.Services;
+﻿using sharplox.Errors;
+using sharplox.Services;
 using sharplox.Tokens;
 using sharplox.Tools;
 
@@ -7,6 +8,8 @@ namespace sharplox;
 public class Lox
 {
     private static bool _inErrorState = false;
+    private static bool _inRuntimeErrorState = false;
+    private static readonly Interpreter Interpreter = new Interpreter();
     
     public static void Initialize(string[] args)
     {
@@ -24,7 +27,11 @@ public class Lox
         Run(source);
         if (_inErrorState)
         {
-            Utils.Exit(Utils.ExitCode.CODE_ERROR);
+            Utils.Exit(Utils.ExitCode.STATIC_ERROR);
+        }
+        if (_inRuntimeErrorState)
+        {
+            Utils.Exit(Utils.ExitCode.RUNTIME_ERROR);
         }
     }
     
@@ -38,6 +45,7 @@ public class Lox
                 break;
             Run(input);
             _inErrorState = false;
+            _inRuntimeErrorState = false;
         }
     }
     
@@ -52,7 +60,8 @@ public class Lox
         if (_inErrorState)
             return;
         
-        Console.WriteLine(new AstPrinter().PrintAstTree(expression!));
+        if (expression != null)
+            Interpreter.Interpret(expression);
     }
 
     public static void Error(int line, string message)
@@ -70,6 +79,12 @@ public class Lox
         {
             Report(token.Line, $"at '{token.Lexeme}'", message);
         }
+    }
+
+    public static void RuntimeError(RuntimeException ex)
+    {
+        Console.WriteLine($"{ex.Message}\n[line {ex.Token.Line}]");
+        _inRuntimeErrorState = true;
     }
 
     private static void Report(int line, string where, string message)

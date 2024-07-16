@@ -10,6 +10,7 @@ public static class Utils
     public enum ExitCode
     {
         INVALID_USAGE = 64,
-        CODE_ERROR = 65,
+        STATIC_ERROR = 65,
+        RUNTIME_ERROR = 70,
     }
 }

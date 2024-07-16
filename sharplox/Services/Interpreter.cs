@@ -1,11 +1,26 @@
-﻿using sharplox.Expressions;
+﻿using System.Globalization;
+using sharplox.Errors;
+using sharplox.Expressions;
 using sharplox.Tokens;
 
 namespace sharplox.Services;
 
 public class Interpreter : IExpressionVisitor<object?>
 {
-    public object? Evaluate(BaseExpression expression)
+    public void Interpret(BaseExpression expression)
+    {
+        try
+        {
+            var value = Evaluate(expression);
+            Console.WriteLine(Stringify(value));
+        }
+        catch (RuntimeException ex)
+        {
+            Lox.RuntimeError(ex);
+        }
+    }
+    
+    private object? Evaluate(BaseExpression expression)
     {
         return expression.Accept(this);
     }
@@ -18,24 +33,31 @@ public class Interpreter : IExpressionVisitor<object?>
         switch (binaryExpression.Operator.Type)
         {
             case TokenType.MINUS:
+                AssertNumberOperands(binaryExpression.Operator, left, right);
                 return (double)left - (double)right;
             case TokenType.PLUS:
                 if (left is double ld && right is double rd)
                     return ld + rd;
                 if (left is string ls && right is string rs)
                     return ls + rs;
-                break;
+                throw new RuntimeException(binaryExpression.Operator, "Operands must be both strings or both numbers");
             case TokenType.SLASH:
+                AssertNumberOperands(binaryExpression.Operator, left, right);
                 return (double)left / (double)right;
             case TokenType.STAR:
+                AssertNumberOperands(binaryExpression.Operator, left, right);
                 return (double)left * (double)right;
             case TokenType.GREATER:
+                AssertNumberOperands(binaryExpression.Operator, left, right);
                 return (double)left > (double)right;
             case TokenType.GREATER_EQUAL:
+                AssertNumberOperands(binaryExpression.Operator, left, right);
                 return (double)left >= (double)right;
             case TokenType.LESS:
+                AssertNumberOperands(binaryExpression.Operator, left, right);
                 return (double)left < (double)right;
             case TokenType.LESS_EQAUL:
+                AssertNumberOperands(binaryExpression.Operator, left, right);
                 return (double)left <= (double)right;
             case TokenType.EQUAL_EQUAL:
                 return AreEqual(left, right);
@@ -64,6 +86,7 @@ public class Interpreter : IExpressionVisitor<object?>
         switch (unaryExpression.Operator.Type)
         {
             case TokenType.MINUS:
+                AssertNumberOperand(unaryExpression.Operator, right);
                 return -(double)right;
             case TokenType.BANG:
                 return !IsTruthy(right);
@@ -93,5 +116,35 @@ public class Interpreter : IExpressionVisitor<object?>
         if (lhs == null || rhs == null)
             return false;
         return lhs.Equals(rhs);
+    }
+
+    private void AssertNumberOperand(Token op, object? operand)
+    {
+        if (operand is double)
+            return;
+        throw new RuntimeException(op, "Operand must be a number.");
+    }
+
+    private void AssertNumberOperands(Token op, object? lhs, object? rhs)
+    {
+        if (lhs is double && rhs is double)
+            return;
+        throw new RuntimeException(op, "Operands must be numbers.");
+    }
+
+    private string Stringify(object? value)
+    {
+        if (value == null)
+            return "nil";
+
+        if (value is double d)
+        {
+            var text = d.ToString(CultureInfo.InvariantCulture);
+            if (text.EndsWith(".0"))
+                text = text.Substring(0, text.Length - 2);
+            return text;
+        }
+        
+        return value.ToString()!;
     }
 }
