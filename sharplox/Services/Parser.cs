@@ -146,7 +146,7 @@ public class Parser
     private Token Consume(TokenType type, string message)
     {
         if (CheckCurrent(type))
-            Advance();
+            return Advance();
         throw ParseError(Peek(), message);
     }
 
