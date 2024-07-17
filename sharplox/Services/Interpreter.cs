@@ -101,6 +101,11 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
+    public object? VisitVariableExpression(VariableExpression variableExpression)
+    {
+        throw new NotImplementedException();
+    }
+
     // Statements
     private void Execute(BaseStatement statement)
     {
@@ -119,7 +124,12 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         Evaluate(statement.Expression);
         return null;
     }
-    
+
+    public object? VisitVariableStatement(VariableStatement statement)
+    {
+        throw new NotImplementedException();
+    }
+
     // Helpers
     
     // Bool -> just value

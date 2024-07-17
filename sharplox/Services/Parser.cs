@@ -16,12 +16,12 @@ public class Parser
         _tokens = tokens;
     }
 
-    public List<BaseStatement> Parse()
+    public List<BaseStatement?> Parse()
     {
-        var statements = new List<BaseStatement>();
+        var statements = new List<BaseStatement?>();
 
         while(!IsAtEnd())
-            statements.Add(Statement());
+            statements.Add(Declaration());
         
         return statements;
     }
@@ -132,6 +132,9 @@ public class Parser
         if (MatchCurrent(TokenType.NUMBER, TokenType.STRING))
             return new LiteralExpression(Previous().Literal);
 
+        if (MatchCurrent(TokenType.VAR))
+            return new VariableExpression(Previous());
+        
         if (MatchCurrent(TokenType.LEFT_PAREN))
         {
             BaseExpression expression = Expression();
@@ -178,6 +181,21 @@ public class Parser
         }
     }
 
+    private BaseStatement? Declaration()
+    {
+        try
+        {
+            if (MatchCurrent(TokenType.VAR))
+                return VariableStatement();
+            return Statement();
+        }
+        catch (ParseException ex)
+        {
+            Synchronize();
+            return null;
+        }
+    }
+    
     private BaseStatement Statement()
     {
         if (MatchCurrent(TokenType.PRINT))
@@ -198,5 +216,15 @@ public class Parser
         BaseExpression expression = Expression();
         Consume(TokenType.SEMICOLON, "Expect ';' after expression");
         return new ExpressionStatement(expression);
+    }
+
+    private BaseStatement VariableStatement()
+    {
+        Token name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
+        BaseExpression? initializer = null;
+        if (MatchCurrent(TokenType.EQUAL))
+            initializer = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
+        return new VariableStatement(name, initializer);
     }
 }
