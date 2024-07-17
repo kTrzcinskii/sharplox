@@ -1,5 +1,6 @@
 ﻿using sharplox.Errors;
 using sharplox.Expressions;
+using sharplox.Statements;
 using sharplox.Tokens;
 
 namespace sharplox.Services;
@@ -15,16 +16,14 @@ public class Parser
         _tokens = tokens;
     }
 
-    public BaseExpression? Parse()
+    public List<BaseStatement> Parse()
     {
-        try
-        {
-            return Expression();
-        }
-        catch (ParseException ex)
-        {
-            return null;
-        }
+        var statements = new List<BaseStatement>();
+
+        while(!IsAtEnd())
+            statements.Add(Statement());
+        
+        return statements;
     }
 
     private Token Peek()
@@ -177,5 +176,27 @@ public class Parser
             }
             Advance();
         }
+    }
+
+    private BaseStatement Statement()
+    {
+        if (MatchCurrent(TokenType.PRINT))
+            return PrintStatement();
+
+        return ExpressionStatement();
+    }
+
+    private BaseStatement PrintStatement()
+    {
+        BaseExpression value = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after value");
+        return new PrintStatement(value);
+    }
+
+    private BaseStatement ExpressionStatement()
+    {
+        BaseExpression expression = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after expression");
+        return new ExpressionStatement(expression);
     }
 }

@@ -1,18 +1,21 @@
 ﻿using System.Globalization;
 using sharplox.Errors;
 using sharplox.Expressions;
+using sharplox.Statements;
 using sharplox.Tokens;
 
 namespace sharplox.Services;
 
-public class Interpreter : IExpressionVisitor<object?>
+// We use object? in statement visitor as it's not possible to use 'void' in the
+// place of generic in c#...
+public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object?>
 {
-    public void Interpret(BaseExpression expression)
+    public void Interpret(List<BaseStatement> statements)
     {
         try
         {
-            var value = Evaluate(expression);
-            Console.WriteLine(Stringify(value));
+            foreach (var statement in statements)
+                Execute(statement);
         }
         catch (RuntimeException ex)
         {
@@ -20,6 +23,7 @@ public class Interpreter : IExpressionVisitor<object?>
         }
     }
     
+    // Expressions
     private object? Evaluate(BaseExpression expression)
     {
         return expression.Accept(this);
@@ -97,6 +101,26 @@ public class Interpreter : IExpressionVisitor<object?>
         return null;
     }
 
+    // Statements
+    private void Execute(BaseStatement statement)
+    {
+        statement.Accept(this);
+    }
+    
+    public object? VisitPrintStatement(PrintStatement statement)
+    {
+        var value = Evaluate(statement.Expression);
+        Console.WriteLine(Stringify(value));
+        return null;
+    }
+
+    public object? VisitExpressionStatement(ExpressionStatement statement)
+    {
+        Evaluate(statement.Expression);
+        return null;
+    }
+    
+    // Helpers
     
     // Bool -> just value
     // Nil -> always false
