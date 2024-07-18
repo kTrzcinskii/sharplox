@@ -132,7 +132,7 @@ public class Parser
         if (MatchCurrent(TokenType.NUMBER, TokenType.STRING))
             return new LiteralExpression(Previous().Literal);
 
-        if (MatchCurrent(TokenType.VAR))
+        if (MatchCurrent(TokenType.IDENTIFIER))
             return new VariableExpression(Previous());
         
         if (MatchCurrent(TokenType.LEFT_PAREN))
