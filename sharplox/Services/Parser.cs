@@ -82,11 +82,33 @@ public class Parser
         return expression;
     }
     
+    // Expression
+    
     private BaseExpression Expression()
     {
-        return Equality();
+        return Assignment();
     }
 
+    private BaseExpression Assignment()
+    {
+        var expression = Equality();
+
+        if (MatchCurrent(TokenType.EQUAL))
+        {
+            Token equals = Previous();
+            var value = Assignment();
+            if (expression is VariableExpression ve)
+            {
+                Token name = ve.Name;
+                return new AssignExpression(name, value);
+            }
+
+            ParseError(equals, "Invalid assignment target.");
+        }
+
+        return expression;
+    }
+    
     private BaseExpression Equality()
     {
         return HandleLeftAssociativeBinaryOperation(Comparison, TokenType.EQUAL_EQUAL, TokenType.BANG_EQAUl);
@@ -181,6 +203,8 @@ public class Parser
         }
     }
 
+    // Statements
+    
     private BaseStatement? Declaration()
     {
         try

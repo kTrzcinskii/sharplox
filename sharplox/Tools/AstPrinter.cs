@@ -40,6 +40,11 @@ public class AstPrinter : IExpressionVisitor<string>
         return $"var {variableExpression.Name}";
     }
 
+    public string VisitAssignExpression(AssignExpression assignExpression)
+    {
+        return Parenthesize($"assign {assignExpression.Name}", assignExpression.Value);
+    }
+
     private string Parenthesize(string name, params BaseExpression[] expressions)
     {
         var sb = new StringBuilder();

@@ -7,4 +7,5 @@ public interface IExpressionVisitor<T>
     public T VisitLiteralExpression(LiteralExpression literalExpression);
     public T VisitUnaryExpression(UnaryExpression unaryExpression);
     public T VisitVariableExpression(VariableExpression variableExpression);
+    public T VisitAssignExpression(AssignExpression assignExpression);
 }

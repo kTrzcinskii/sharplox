@@ -108,6 +108,13 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return _environment.Get(variableExpression.Name);
     }
 
+    public object? VisitAssignExpression(AssignExpression assignExpression)
+    {
+        var value = Evaluate(assignExpression.Value);
+        _environment.Assign(assignExpression.Name, value);
+        return value;
+    }
+
     // Statements
     private void Execute(BaseStatement statement)
     {
