@@ -10,6 +10,8 @@ namespace sharplox.Services;
 // place of generic in c#...
 public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object?>
 {
+    private Environment _environment = new Environment();
+    
     public void Interpret(List<BaseStatement> statements)
     {
         try
@@ -103,7 +105,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object? VisitVariableExpression(VariableExpression variableExpression)
     {
-        throw new NotImplementedException();
+        return _environment.Get(variableExpression.Name);
     }
 
     // Statements
@@ -127,7 +129,11 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object? VisitVariableStatement(VariableStatement statement)
     {
-        throw new NotImplementedException();
+        object? value = null;
+        if (statement.Initializer != null)
+            value = Evaluate(statement.Initializer);
+        _environment.Define(statement.Name.Lexeme, value);
+        return null;
     }
 
     // Helpers
