@@ -149,6 +149,15 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
+    public object? VisitIfStatement(IfStatement statement)
+    {
+        if (IsTruthy(Evaluate(statement.Condition)))
+            Execute(statement.ThenBranch);
+        else if (statement.ElseBranch != null) 
+            Execute(statement.ElseBranch);
+        return null;
+    }
+
     // Helpers
     
     // Bool -> just value

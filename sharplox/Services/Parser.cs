@@ -225,6 +225,9 @@ public class Parser
     
     private BaseStatement Statement()
     {
+        if (MatchCurrent(TokenType.IF))
+            return If();
+        
         if (MatchCurrent(TokenType.PRINT))
             return Print();
 
@@ -270,5 +273,17 @@ public class Parser
         }
         Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
         return statements;
+    }
+
+    private BaseStatement If()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        var condition = Expression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+        var thenBranch = Statement();
+        BaseStatement? elseBranch = null;
+        if (MatchCurrent(TokenType.ELSE))
+            elseBranch = Statement();
+        return new IfStatement(condition, thenBranch, elseBranch);
     }
 }
