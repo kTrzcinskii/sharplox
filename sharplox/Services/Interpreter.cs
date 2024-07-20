@@ -12,12 +12,13 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 {
     private Environment _environment = new Environment();
     
-    public void Interpret(List<BaseStatement> statements)
+    public void Interpret(List<BaseStatement?> statements)
     {
         try
         {
             foreach (var statement in statements)
-                Execute(statement);
+                if (statement != null)
+                    Execute(statement);
         }
         catch (RuntimeException ex)
         {
