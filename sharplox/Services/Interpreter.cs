@@ -12,13 +12,12 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 {
     private Environment _environment = new Environment();
     
-    public void Interpret(List<BaseStatement?> statements)
+    public void Interpret(List<BaseStatement> statements)
     {
         try
         {
             foreach (var statement in statements)
-                if (statement != null)
-                    Execute(statement);
+                Execute(statement);
         }
         catch (RuntimeException ex)
         {
@@ -50,7 +49,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
                 throw new RuntimeException(binaryExpression.Operator, "Operands must be both strings or both numbers");
             case TokenType.SLASH:
                 AssertNumberOperands(binaryExpression.Operator, left, right);
-                AssertLegalDivision(binaryExpression.Operator, (double)left, (double)right);
+                AssertLegalDivision(binaryExpression.Operator, (double)right);
                 return (double)left / (double)right;
             case TokenType.STAR:
                 AssertNumberOperands(binaryExpression.Operator, left, right);
@@ -187,7 +186,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         throw new RuntimeException(op, "Operands must be numbers.");
     }
 
-    private void AssertLegalDivision(Token op, double lhs, double rhs)
+    private void AssertLegalDivision(Token op, double rhs)
     {
         if (rhs != 0)
             return;
@@ -210,7 +209,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return value.ToString()!;
     }
 
-    private void ExecuteBlock(List<BaseStatement?> statements, Environment environment)
+    private void ExecuteBlock(List<BaseStatement> statements, Environment environment)
     {
         var previous = _environment;
         try
@@ -218,8 +217,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
             _environment = environment;
             foreach (var statement in statements)
             {
-                if (statement != null)
-                    Execute(statement);
+                Execute(statement);
             }
         }
         finally

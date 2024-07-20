@@ -10,18 +10,21 @@ public class Parser
     private readonly List<Token> _tokens;
     private int _current = 0;
 
-
     public Parser(List<Token> tokens)
     {
         _tokens = tokens;
     }
 
-    public List<BaseStatement?> Parse()
+    public List<BaseStatement> Parse()
     {
-        var statements = new List<BaseStatement?>();
+        var statements = new List<BaseStatement>();
 
-        while(!IsAtEnd())
-            statements.Add(Declaration());
+        while (!IsAtEnd())
+        {
+            var declaration = Declaration();
+            if (declaration != null)
+                statements.Add(declaration);
+        }
         
         return statements;
     }
@@ -213,7 +216,7 @@ public class Parser
                 return Variable();
             return Statement();
         }
-        catch (ParseException ex)
+        catch (ParseException)
         {
             Synchronize();
             return null;
@@ -255,12 +258,16 @@ public class Parser
         return new VariableStatement(name, initializer);
     }
 
-    private List<BaseStatement?> Block()
+    private List<BaseStatement> Block()
     {
-        var statements = new List<BaseStatement?>();
+        var statements = new List<BaseStatement>();
 
         while (!CheckCurrent(TokenType.RIGHT_BRACE) && !IsAtEnd())
-            statements.Add(Declaration());
+        {
+            var declaration = Declaration();
+            if (declaration != null)
+                statements.Add(declaration);
+        }
         Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
         return statements;
     }

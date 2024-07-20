@@ -2,9 +2,9 @@
 
 public class BlockStatement : BaseStatement
 {
-    public List<BaseStatement?> Statements { get; }
+    public List<BaseStatement> Statements { get; }
 
-    public BlockStatement(List<BaseStatement?> statements)
+    public BlockStatement(List<BaseStatement> statements)
     {
         Statements = statements;
     }
