@@ -210,7 +210,7 @@ public class Parser
         try
         {
             if (MatchCurrent(TokenType.VAR))
-                return VariableStatement();
+                return Variable();
             return Statement();
         }
         catch (ParseException ex)
@@ -223,26 +223,29 @@ public class Parser
     private BaseStatement Statement()
     {
         if (MatchCurrent(TokenType.PRINT))
-            return PrintStatement();
+            return Print();
 
-        return ExpressionStatement();
+        if (MatchCurrent(TokenType.LEFT_BRACE))
+            return new BlockStatement(Block());
+
+        return ExpressionStmt();
     }
 
-    private BaseStatement PrintStatement()
+    private BaseStatement Print()
     {
         BaseExpression value = Expression();
         Consume(TokenType.SEMICOLON, "Expect ';' after value");
         return new PrintStatement(value);
     }
 
-    private BaseStatement ExpressionStatement()
+    private BaseStatement ExpressionStmt()
     {
         BaseExpression expression = Expression();
         Consume(TokenType.SEMICOLON, "Expect ';' after expression");
         return new ExpressionStatement(expression);
     }
 
-    private BaseStatement VariableStatement()
+    private BaseStatement Variable()
     {
         Token name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
         BaseExpression? initializer = null;
@@ -250,5 +253,15 @@ public class Parser
             initializer = Expression();
         Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
         return new VariableStatement(name, initializer);
+    }
+
+    private List<BaseStatement?> Block()
+    {
+        var statements = new List<BaseStatement?>();
+
+        while (!CheckCurrent(TokenType.RIGHT_BRACE) && !IsAtEnd())
+            statements.Add(Declaration());
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 }

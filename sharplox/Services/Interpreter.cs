@@ -7,7 +7,7 @@ using sharplox.Tokens;
 namespace sharplox.Services;
 
 // We use object? in statement visitor as it's not possible to use 'void' in the
-// place of generic in c#...
+// place of generic in c#
 public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object?>
 {
     private Environment _environment = new Environment();
@@ -143,6 +143,12 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
+    public object? VisitBlockStatement(BlockStatement statement)
+    {
+        ExecuteBlock(statement.Statements, new Environment(_environment));
+        return null;
+    }
+
     // Helpers
     
     // Bool -> just value
@@ -201,5 +207,23 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         }
         
         return value.ToString()!;
+    }
+
+    private void ExecuteBlock(List<BaseStatement?> statements, Environment environment)
+    {
+        var previous = _environment;
+        try
+        {
+            _environment = environment;
+            foreach (var statement in statements)
+            {
+                if (statement != null)
+                    Execute(statement);
+            }
+        }
+        finally
+        {
+            _environment = previous;
+        }
     }
 }
