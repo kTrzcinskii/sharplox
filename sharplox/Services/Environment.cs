@@ -5,7 +5,18 @@ namespace sharplox.Services;
 
 public class Environment
 {
+    private readonly Environment? _parentEnvironment;
     private readonly Dictionary<string, object?> _values = new Dictionary<string, object?>();
+
+    public Environment()
+    {
+        _parentEnvironment = null;
+    }
+
+    public Environment(Environment? parentEnvironment)
+    {
+        _parentEnvironment = parentEnvironment;
+    }
 
     public void Define(string name, object? value)
     {
@@ -20,6 +31,12 @@ public class Environment
             return;
         }
 
+        if (_parentEnvironment != null)
+        {
+            _parentEnvironment.Assign(name, value);
+            return;
+        }
+
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'");
     }
 
@@ -27,6 +44,10 @@ public class Environment
     {
         if (_values.TryGetValue(name.Lexeme, out object? value))
             return value;
+
+        if (_parentEnvironment != null)
+            return _parentEnvironment.Get(name);
+            
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
     }
 }
