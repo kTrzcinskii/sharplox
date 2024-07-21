@@ -115,6 +115,24 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return value;
     }
 
+    public object? VisitLogicalExpression(LogicalExpression logicalExpression)
+    {
+        var left = Evaluate(logicalExpression.Left);
+
+        if (logicalExpression.Operator.Type == TokenType.OR)
+        {
+            if (IsTruthy(left))
+                return left;
+        }
+        else
+        {
+            if (!IsTruthy(left))
+                return left;
+        }
+
+        return Evaluate(logicalExpression.Right);
+    }
+
     // Statements
     private void Execute(BaseStatement statement)
     {

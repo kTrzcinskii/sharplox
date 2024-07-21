@@ -84,6 +84,21 @@ public class Parser
         
         return expression;
     }
+
+    private BaseExpression HandleLeftAssociativeLogicalOperation(Func<BaseExpression> higherPrecedenceRule,
+        params TokenType[] types)
+    {
+        BaseExpression expression = higherPrecedenceRule();
+
+        while (MatchCurrent(types))
+        {
+            var op = Previous();
+            BaseExpression right = higherPrecedenceRule();
+            expression = new LogicalExpression(expression, right, op);
+        }
+
+        return expression;
+    }
     
     // Expression
     
@@ -94,7 +109,7 @@ public class Parser
 
     private BaseExpression Assignment()
     {
-        var expression = Equality();
+        var expression = Or();
 
         if (MatchCurrent(TokenType.EQUAL))
         {
@@ -168,6 +183,16 @@ public class Parser
         }
 
         throw ParseError(Peek(), "Expect beginning of expression");
+    }
+
+    private BaseExpression Or()
+    {
+        return HandleLeftAssociativeLogicalOperation(And, TokenType.OR);
+    }
+
+    private BaseExpression And()
+    {
+        return HandleLeftAssociativeLogicalOperation(Equality, TokenType.AND);
     }
 
     private Token Consume(TokenType type, string message)
