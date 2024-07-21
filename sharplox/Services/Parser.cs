@@ -256,6 +256,9 @@ public class Parser
         if (MatchCurrent(TokenType.PRINT))
             return Print();
 
+        if (MatchCurrent(TokenType.WHILE))
+            return While();
+
         if (MatchCurrent(TokenType.LEFT_BRACE))
             return new BlockStatement(Block());
 
@@ -310,5 +313,14 @@ public class Parser
         if (MatchCurrent(TokenType.ELSE))
             elseBranch = Statement();
         return new IfStatement(condition, thenBranch, elseBranch);
+    }
+
+    private BaseStatement While()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        var condition = Expression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+        var body = Statement();
+        return new WhileStatement(condition, body);
     }
 }

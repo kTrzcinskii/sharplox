@@ -7,4 +7,5 @@ public interface IStatementVisitor<T>
     public T VisitVariableStatement(VariableStatement statement);
     public T VisitBlockStatement(BlockStatement statement);
     public T VisitIfStatement(IfStatement statement);
+    public T VisitWhileStatement(WhileStatement statement);
 }

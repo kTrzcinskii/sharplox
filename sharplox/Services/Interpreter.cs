@@ -176,6 +176,13 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
+    public object? VisitWhileStatement(WhileStatement statement)
+    {
+        while (IsTruthy(Evaluate(statement.Condition)))
+            Execute(statement.Body);
+        return null;
+    }
+
     // Helpers
     
     // Bool -> just value
