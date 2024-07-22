@@ -250,6 +250,9 @@ public class Parser
     
     private BaseStatement Statement()
     {
+        if (MatchCurrent(TokenType.FOR))
+            return For();
+        
         if (MatchCurrent(TokenType.IF))
             return If();
         
@@ -322,5 +325,42 @@ public class Parser
         Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
         var body = Statement();
         return new WhileStatement(condition, body);
+    }
+
+    private BaseStatement For()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+        
+        BaseStatement? initializer;
+        if (MatchCurrent(TokenType.SEMICOLON))
+            initializer = null;
+        else if (CheckCurrent(TokenType.VAR))
+            initializer = Declaration();
+        else
+            initializer = ExpressionStmt();
+
+        BaseExpression? condition = null;
+        if (!CheckCurrent(TokenType.SEMICOLON))
+            condition = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after loop condition");
+
+        BaseExpression? increment = null;
+        if (!CheckCurrent(TokenType.SEMICOLON))
+            increment = Expression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after loop clauses.");
+
+        var body = Statement();
+
+        if (increment != null)
+            body = new BlockStatement([body, new ExpressionStatement(increment)]);
+
+        if (condition == null)
+            condition = new LiteralExpression(true);
+        body = new WhileStatement(condition, body);
+
+        if (initializer != null)
+            body = new BlockStatement([initializer, body]);
+        
+        return body;
     }
 }
