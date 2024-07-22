@@ -2,6 +2,7 @@
 using sharplox.BuiltIns;
 using sharplox.Errors;
 using sharplox.Expressions;
+using sharplox.NativeFunctions;
 using sharplox.Statements;
 using sharplox.Tokens;
 
@@ -11,8 +12,16 @@ namespace sharplox.Services;
 // place of generic in c#
 public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object?>
 {
-    private Environment _environment = new Environment();
-    
+    public readonly Environment Globals = new Environment();
+    private Environment _environment;
+
+    public Interpreter()
+    {
+        // Define global native 'clock' function
+        Globals.Define("clock", new Clock());
+        _environment = Globals;
+    }
+
     public void Interpret(List<BaseStatement> statements)
     {
         try
