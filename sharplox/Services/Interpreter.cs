@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using sharplox.BuiltIns;
 using sharplox.Errors;
 using sharplox.Expressions;
 using sharplox.Statements;
@@ -131,6 +132,21 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         }
 
         return Evaluate(logicalExpression.Right);
+    }
+
+    public object? VisitCallExpression(CallExpression callExpression)
+    {
+        var callee = Evaluate(callExpression.Callee);
+        var arguments = new List<object?>();
+        foreach (var argument in callExpression.Arguments)
+            arguments.Add(Evaluate(argument));
+        if (!(callee is ILoxCallable))
+            throw new RuntimeException(callExpression.ClosingParen, "Can only call functions and classes.");
+        var function = (ILoxCallable)callee;
+        if (arguments.Count != function.GetArity())
+            throw new RuntimeException(callExpression.ClosingParen,
+                $"Expected {function.GetArity()} arguments, but got {arguments.Count}.");
+        return function.Call(this, arguments);
     }
 
     // Statements

@@ -50,6 +50,23 @@ public class AstPrinter : IExpressionVisitor<string>
         return Parenthesize(logicalExpression.Operator.Lexeme, logicalExpression.Left, logicalExpression.Right);
     }
 
+    public string VisitCallExpression(CallExpression callExpression)
+    {
+        var sb = new StringBuilder();
+        sb.Append('(');
+        sb.Append("call");
+        sb.Append(callExpression.Accept(this));
+        sb.Append('(');
+        foreach (var expression in callExpression.Arguments)
+        {
+            sb.Append(' ');
+            sb.Append(expression.Accept(this));
+        }
+        sb.Append(')');
+        sb.Append(')');
+        return sb.ToString();
+    }
+    
     private string Parenthesize(string name, params BaseExpression[] expressions)
     {
         var sb = new StringBuilder();

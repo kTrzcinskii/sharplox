@@ -2,6 +2,7 @@
 using sharplox.Expressions;
 using sharplox.Statements;
 using sharplox.Tokens;
+using sharplox.Tools;
 
 namespace sharplox.Services;
 
@@ -157,9 +158,26 @@ public class Parser
             return new UnaryExpression(right, op);
         }
 
-        return Primary();
+        return Call();
     }
 
+    private BaseExpression Call()
+    {
+        var expression = Primary();
+
+        // We do it in while loop to support currying
+        // i.e. doing something like func(1)(2)(3)
+        while (true)
+        {
+            if (MatchCurrent(TokenType.LEFT_PAREN))
+                expression = FinishCall(expression);
+            else
+                break;
+        }
+            
+        return expression;
+    }
+    
     private BaseExpression Primary()
     {
         if (MatchCurrent(TokenType.FALSE))
@@ -195,6 +213,21 @@ public class Parser
         return HandleLeftAssociativeLogicalOperation(Equality, TokenType.AND);
     }
 
+    private BaseExpression FinishCall(BaseExpression callee)
+    {
+        var arguments = new List<BaseExpression>();
+        if (!CheckCurrent(TokenType.RIGHT_PAREN))
+            do
+            {
+                if (arguments.Count >= Utils.MaxArgumentsCount)
+                    ParseError(Peek(), $"Can't have more than {Utils.MaxArgumentsCount} arguments.");
+                arguments.Add(Expression());
+            } while (MatchCurrent(TokenType.COMMA));
+
+        var closingParen = Consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+        return new CallExpression(callee, closingParen, arguments);
+    }
+    
     private Token Consume(TokenType type, string message)
     {
         if (CheckCurrent(type))

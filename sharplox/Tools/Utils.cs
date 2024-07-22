@@ -2,6 +2,8 @@
 
 public static class Utils
 {
+    public static readonly int MaxArgumentsCount = 255;
+    
     public static void Exit(ExitCode code)
     {
         Environment.Exit((int)code);
