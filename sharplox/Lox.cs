@@ -1,4 +1,4 @@
-﻿using sharplox.Errors;
+﻿using sharplox.Exceptions;
 using sharplox.Services;
 using sharplox.Tokens;
 using sharplox.Tools;

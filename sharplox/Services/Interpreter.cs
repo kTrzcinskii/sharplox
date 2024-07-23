@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using sharplox.BuiltIns;
-using sharplox.Errors;
+using sharplox.Exceptions;
 using sharplox.Expressions;
 using sharplox.NativeFunctions;
 using sharplox.Statements;
@@ -208,6 +208,22 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
+    public object? VisitFunctionStatement(FunctionStatement statement)
+    {
+        var function = new LoxFunction(statement);
+        _environment.Define(statement.Name.Lexeme, function);
+        return null;
+    }
+
+    public object? VisitReturnStatement(ReturnStatement statement)
+    {
+        object? value = null;
+        if (statement.Value != null)
+            value = Evaluate(statement.Value);
+
+        throw new ReturnException(value);
+    }
+
     // Helpers
     
     // Bool -> just value
@@ -268,7 +284,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return value.ToString()!;
     }
 
-    private void ExecuteBlock(List<BaseStatement> statements, Environment environment)
+    public void ExecuteBlock(List<BaseStatement> statements, Environment environment)
     {
         var previous = _environment;
         try

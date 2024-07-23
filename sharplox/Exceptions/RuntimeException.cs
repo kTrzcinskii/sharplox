@@ -1,6 +1,6 @@
 ﻿using sharplox.Tokens;
 
-namespace sharplox.Errors;
+namespace sharplox.Exceptions;
 
 public class RuntimeException : Exception
 {

@@ -1,4 +1,5 @@
-﻿using sharplox.Errors;
+﻿using sharplox.BuiltIns;
+using sharplox.Exceptions;
 using sharplox.Expressions;
 using sharplox.Statements;
 using sharplox.Tokens;
@@ -270,6 +271,8 @@ public class Parser
     {
         try
         {
+            if (MatchCurrent(TokenType.FUN))
+                return Function(FunctionType.FUNCTION);
             if (MatchCurrent(TokenType.VAR))
                 return Variable();
             return Statement();
@@ -291,6 +294,9 @@ public class Parser
         
         if (MatchCurrent(TokenType.PRINT))
             return Print();
+
+        if (MatchCurrent(TokenType.RETURN))
+            return Return();
 
         if (MatchCurrent(TokenType.WHILE))
             return While();
@@ -315,6 +321,24 @@ public class Parser
         return new ExpressionStatement(expression);
     }
 
+    private BaseStatement Function(FunctionType type)
+    {
+        var name = Consume(TokenType.IDENTIFIER, $"Expect {type} name.");
+        Consume(TokenType.LEFT_PAREN, $"Expect '(' after ${type} name.");
+        var parameters = new List<Token>();
+        if (!CheckCurrent(TokenType.RIGHT_PAREN))
+            do
+            {
+                if (parameters.Count > Utils.MaxArgumentsCount)
+                    ParseError(Peek(), $"Can't have more than {Utils.MaxArgumentsCount} parameters.");
+                parameters.Add(Consume(TokenType.IDENTIFIER, "Expect parameter name."));
+            } while (MatchCurrent(TokenType.COMMA));
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+        Consume(TokenType.LEFT_BRACE, $"Expect '{{' before {type} body.");
+        var body = Block();
+        return new FunctionStatement(name, parameters, body);
+    }
+    
     private BaseStatement Variable()
     {
         Token name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
@@ -395,5 +419,15 @@ public class Parser
             body = new BlockStatement([initializer, body]);
         
         return body;
+    }
+
+    private BaseStatement Return()
+    {
+        var keyword = Previous();
+        BaseExpression? value = null;
+        if (!CheckCurrent(TokenType.SEMICOLON))
+            value = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+        return new ReturnStatement(keyword, value);
     }
 }

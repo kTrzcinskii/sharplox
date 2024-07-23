@@ -8,4 +8,6 @@ public interface IStatementVisitor<T>
     public T VisitBlockStatement(BlockStatement statement);
     public T VisitIfStatement(IfStatement statement);
     public T VisitWhileStatement(WhileStatement statement);
+    public T VisitFunctionStatement(FunctionStatement statement);
+    public T VisitReturnStatement(ReturnStatement statement);
 }
