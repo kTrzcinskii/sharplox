@@ -210,7 +210,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object? VisitFunctionStatement(FunctionStatement statement)
     {
-        var function = new LoxFunction(statement);
+        var function = new LoxFunction(statement, _environment);
         _environment.Define(statement.Name.Lexeme, function);
         return null;
     }

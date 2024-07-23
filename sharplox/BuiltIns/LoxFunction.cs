@@ -8,15 +8,17 @@ namespace sharplox.BuiltIns;
 public class LoxFunction : ILoxCallable
 {
     private readonly FunctionStatement _declaration;
+    private readonly Environment _closure;
 
-    public LoxFunction(FunctionStatement declaration)
+    public LoxFunction(FunctionStatement declaration, Environment closure)
     {
         _declaration = declaration;
+        _closure = closure;
     }
 
     public object? Call(Interpreter interpreter, List<object?> arguments)
     {
-        var environment = new Environment(interpreter.Globals);
+        var environment = new Environment(_closure);
         for (int i = 0; i < _declaration.Params.Count; i++)
             environment.Define(_declaration.Params[i].Lexeme, arguments[i]);
         try
