@@ -3,5 +3,6 @@
 public enum FunctionType
 {
     FUNCTION,
-    METHOD
+    METHOD,
+    NONE
 }

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using sharplox.BuiltIns;
 using sharplox.Exceptions;
 using sharplox.Expressions;
@@ -12,14 +13,15 @@ namespace sharplox.Services;
 // place of generic in c#
 public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object?>
 {
-    public readonly Environment Globals = new Environment();
+    private readonly Environment _globals = new Environment();
+    private readonly Dictionary<BaseExpression, int> _locals = new Dictionary<BaseExpression, int>();
     private Environment _environment;
 
     public Interpreter()
     {
         // Define global native 'clock' function
-        Globals.Define("clock", new Clock());
-        _environment = Globals;
+        _globals.Define("clock", new Clock());
+        _environment = _globals;
     }
 
     public void Interpret(List<BaseStatement> statements)
@@ -115,13 +117,18 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object? VisitVariableExpression(VariableExpression variableExpression)
     {
-        return _environment.Get(variableExpression.Name);
+        return LookUpVariable(variableExpression.Name, variableExpression);
     }
 
     public object? VisitAssignExpression(AssignExpression assignExpression)
     {
         var value = Evaluate(assignExpression.Value);
-        _environment.Assign(assignExpression.Name, value);
+       
+        if (_locals.TryGetValue(assignExpression, out int depth))
+            _environment.AssignAt(depth, assignExpression.Name, value);
+        else 
+            _globals.Assign(assignExpression.Name, value);
+        
         return value;
     }
 
@@ -299,5 +306,17 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         {
             _environment = previous;
         }
+    }
+
+    public void Resolve(BaseExpression expression, int depth)
+    {
+        _locals[expression] = depth;
+    }
+
+    private object? LookUpVariable(Token name, BaseExpression expression)
+    {
+        if (_locals.TryGetValue(expression, out int depth))
+            return _environment.GetAt(depth, name);
+        return _globals.Get(name);
     }
 }

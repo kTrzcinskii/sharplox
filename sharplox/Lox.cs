@@ -59,6 +59,12 @@ public class Lox
 
         if (_inErrorState)
             return;
+
+        var resolver = new Resolver(Interpreter);
+        resolver.Resolve(statements);
+        
+        if (_inErrorState)
+            return;
         
         Interpreter.Interpret(statements);
     }

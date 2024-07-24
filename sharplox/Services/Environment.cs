@@ -40,6 +40,12 @@ public class Environment
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'");
     }
 
+    public void AssignAt(int depth, Token name, object? value)
+    {
+        // At this point we don't event check if variable is defined - we assume that Resolver did its job.
+        Ancestor(depth)._values[name.Lexeme] = value;
+    }
+
     public object? Get(Token name)
     {
         if (_values.TryGetValue(name.Lexeme, out object? value))
@@ -49,5 +55,20 @@ public class Environment
             return _parentEnvironment.Get(name);
             
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
+    }
+
+    public object? GetAt(int depth, Token name)
+    {
+        // At this point we don't event check if variable is defined - we assume that Resolver did its job.
+        return Ancestor(depth)._values[name.Lexeme];
+    }
+
+    private Environment Ancestor(int depth)
+    {
+        var environment = this;
+        // At this point we assume depth is correct value and dont check for null reference - we might want to change it later to some Lox internal error (as it's not user fault, but rather problem with our logic).
+        for (int i = 0; i < depth; i++)
+            environment = environment!._parentEnvironment;
+        return environment!;
     }
 }
