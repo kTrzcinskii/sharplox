@@ -271,6 +271,8 @@ public class Parser
     {
         try
         {
+            if (MatchCurrent(TokenType.CLASS))
+                return Class();
             if (MatchCurrent(TokenType.FUN))
                 return Function(FunctionType.FUNCTION);
             if (MatchCurrent(TokenType.VAR))
@@ -321,7 +323,7 @@ public class Parser
         return new ExpressionStatement(expression);
     }
 
-    private BaseStatement Function(FunctionType type)
+    private FunctionStatement Function(FunctionType type)
     {
         var name = Consume(TokenType.IDENTIFIER, $"Expect {type} name.");
         Consume(TokenType.LEFT_PAREN, $"Expect '(' after ${type} name.");
@@ -429,5 +431,16 @@ public class Parser
             value = Expression();
         Consume(TokenType.SEMICOLON, "Expect ';' after return value.");
         return new ReturnStatement(keyword, value);
+    }
+
+    private BaseStatement Class()
+    {
+        Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+        var methods = new List<FunctionStatement>();
+        while (!CheckCurrent(TokenType.RIGHT_BRACE) && !IsAtEnd())
+            methods.Add(Function(FunctionType.METHOD));
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+        return new ClassStatement(name, methods);
     }
 }

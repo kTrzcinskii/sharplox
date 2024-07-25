@@ -231,6 +231,14 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         throw new ReturnException(value);
     }
 
+    public object? VisitClassStatement(ClassStatement statement)
+    {
+        _environment.Define(statement.Name.Lexeme, null);
+        var loxClass = new LoxClass(statement.Name.Lexeme);
+        _environment.Assign(statement.Name, loxClass);
+        return null;
+    }
+
     // Helpers
     
     // Bool -> just value

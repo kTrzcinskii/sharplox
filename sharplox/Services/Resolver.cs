@@ -143,7 +143,14 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
             Resolve(statement.Value);
         return null;
     }
-    
+
+    public object? VisitClassStatement(ClassStatement statement)
+    {
+        Declare(statement.Name);
+        Define(statement.Name);
+        return null;
+    }
+
     // Helpers
     private void Resolve(BaseStatement statement)
     {

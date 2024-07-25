@@ -10,4 +10,5 @@ public interface IStatementVisitor<T>
     public T VisitWhileStatement(WhileStatement statement);
     public T VisitFunctionStatement(FunctionStatement statement);
     public T VisitReturnStatement(ReturnStatement statement);
+    public T VisitClassStatement(ClassStatement statement);
 }
