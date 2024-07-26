@@ -121,6 +121,10 @@ public class Parser
             {
                 Token name = ve.Name;
                 return new AssignExpression(name, value);
+            } 
+            if (expression is GetExpression ge)
+            {
+                return new SetExpression(ge.Object, ge.Name, value);
             }
 
             ParseError(equals, "Invalid assignment target.");
@@ -172,6 +176,11 @@ public class Parser
         {
             if (MatchCurrent(TokenType.LEFT_PAREN))
                 expression = FinishCall(expression);
+            else if (MatchCurrent(TokenType.DOT))
+            {
+                var name = Consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                expression = new GetExpression(expression, name);
+            }
             else
                 break;
         }

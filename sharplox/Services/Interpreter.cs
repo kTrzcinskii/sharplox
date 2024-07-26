@@ -165,6 +165,28 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return function.Call(this, arguments);
     }
 
+    public object? VisitGetExpression(GetExpression getExpression)
+    {
+        var obj = Evaluate(getExpression.Object);
+        if (obj is LoxInstance loxObject)
+            return loxObject.Get(getExpression.Name);
+        throw new RuntimeException(getExpression.Name, "Only instances have properties.");
+    }
+
+    public object? VisitSetExpression(SetExpression setExpression)
+    {
+        var obj = Evaluate(setExpression.Object);
+
+        if (!(obj is LoxInstance loxObj))
+        {
+            throw new RuntimeException(setExpression.Name, "Only instances have fields.");
+        }
+
+        var value = Evaluate(setExpression.Value);
+        loxObj.Set(setExpression.Name, value);
+        return value;
+    }
+
     // Statements
     private void Execute(BaseStatement statement)
     {

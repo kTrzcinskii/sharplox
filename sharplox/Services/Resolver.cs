@@ -78,7 +78,20 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
             Resolve(argument);
         return null;
     }
-    
+
+    public object? VisitGetExpression(GetExpression getExpression)
+    {
+        Resolve(getExpression.Object);
+        return null;
+    }
+
+    public object? VisitSetExpression(SetExpression setExpression)
+    {
+        Resolve(setExpression.Object);
+        Resolve(setExpression.Value);
+        return null;
+    }
+
     // Statements
 
     public object? VisitPrintStatement(PrintStatement statement)

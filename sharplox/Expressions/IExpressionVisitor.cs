@@ -10,4 +10,6 @@ public interface IExpressionVisitor<T>
     public T VisitAssignExpression(AssignExpression assignExpression);
     public T VisitLogicalExpression(LogicalExpression logicalExpression);
     public T VisitCallExpression(CallExpression callExpression);
+    public T VisitGetExpression(GetExpression getExpression);
+    public T VisitSetExpression(SetExpression setExpression);
 }

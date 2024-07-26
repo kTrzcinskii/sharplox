@@ -55,7 +55,7 @@ public class AstPrinter : IExpressionVisitor<string>
         var sb = new StringBuilder();
         sb.Append('(');
         sb.Append("call");
-        sb.Append(callExpression.Accept(this));
+        sb.Append(callExpression.Callee.Accept(this));
         sb.Append('(');
         foreach (var expression in callExpression.Arguments)
         {
@@ -66,7 +66,34 @@ public class AstPrinter : IExpressionVisitor<string>
         sb.Append(')');
         return sb.ToString();
     }
+
+    public string VisitGetExpression(GetExpression getExpression)
+    {
+        return PropertyExpression("get", getExpression.Name.Lexeme, getExpression.Object);
+    }
     
+    public string VisitSetExpression(SetExpression setExpression)
+    {
+        return PropertyExpression("set", setExpression.Name.Lexeme, setExpression.Object, setExpression.Value);
+    }
+
+    private string PropertyExpression(string type, string name, BaseExpression obj, BaseExpression? value = null)
+    {
+        var sb = new StringBuilder();
+        sb.Append('(');
+        sb.Append("get");
+        sb.Append(name);
+        sb.Append(" on ");
+        sb.Append(obj.Accept(this));
+        if (value != null)
+        {
+            sb.Append(" to ");
+            sb.Append(value.Accept(this));
+        }
+        sb.Append(')');
+        return sb.ToString();
+    }
+
     private string Parenthesize(string name, params BaseExpression[] expressions)
     {
         var sb = new StringBuilder();
