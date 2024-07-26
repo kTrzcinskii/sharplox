@@ -161,6 +161,11 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
     {
         Declare(statement.Name);
         Define(statement.Name);
+        foreach (var method in statement.Methods)
+        {
+            var declaration = FunctionType.METHOD;
+            ResolveFunction(method, declaration);
+        }
         return null;
     }
 

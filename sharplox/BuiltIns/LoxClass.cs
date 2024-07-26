@@ -5,12 +5,13 @@ namespace sharplox.BuiltIns;
 public class LoxClass : ILoxCallable
 {
     private readonly string _name;
+    private readonly Dictionary<string, LoxFunction> _methods;
 
-    public LoxClass(string name)
+    public LoxClass(string name, Dictionary<string, LoxFunction> methods)
     {
         _name = name;
+        _methods = methods;
     }
-
 
     public override string ToString()
     {
@@ -26,5 +27,12 @@ public class LoxClass : ILoxCallable
     public int GetArity()
     {
         return 0;
+    }
+
+    public LoxFunction? FindMethod(string name)
+    {
+        if (_methods.TryGetValue(name, out var method))
+            return method;
+        return null;
     }
 }

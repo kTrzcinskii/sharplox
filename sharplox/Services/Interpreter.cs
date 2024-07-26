@@ -256,7 +256,15 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     public object? VisitClassStatement(ClassStatement statement)
     {
         _environment.Define(statement.Name.Lexeme, null);
-        var loxClass = new LoxClass(statement.Name.Lexeme);
+
+        var methods = new Dictionary<string, LoxFunction>();
+        foreach (var method in statement.Methods)
+        {
+            var function = new LoxFunction(method, _environment);
+            methods.Add(method.Name.Lexeme, function);
+        }
+        
+        var loxClass = new LoxClass(statement.Name.Lexeme, methods);
         _environment.Assign(statement.Name, loxClass);
         return null;
     }
