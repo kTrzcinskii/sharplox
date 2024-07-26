@@ -12,6 +12,7 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
     private readonly Interpreter _interpreter;
     private readonly Stack<Dictionary<string, bool>> _scopes = new Stack<Dictionary<string, bool>>();
     private FunctionType _currentFunction = FunctionType.NONE;
+    private ClassType _currentClass = ClassType.NONE;
 
     public Resolver(Interpreter interpreter)
     {
@@ -92,6 +93,18 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
         return null;
     }
 
+    public object? VisitThisExpression(ThisExpression thisExpression)
+    {
+        if (_currentClass == ClassType.NONE)
+        {
+            Lox.Error(thisExpression.Keyword, "Can't use 'this' oustide of a class.");
+            return null;
+        }
+        
+        ResolveLocal(thisExpression, thisExpression.Keyword);
+        return null;
+    }
+
     // Statements
 
     public object? VisitPrintStatement(PrintStatement statement)
@@ -159,13 +172,24 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
 
     public object? VisitClassStatement(ClassStatement statement)
     {
+        var enclosingClass = _currentClass;
+        _currentClass = ClassType.CLASS;
+        
         Declare(statement.Name);
         Define(statement.Name);
+        
+        BeginScope();
+        _scopes.Peek().Add("this", true);
+        
         foreach (var method in statement.Methods)
         {
             var declaration = FunctionType.METHOD;
             ResolveFunction(method, declaration);
         }
+        
+        EndScope();
+        _currentClass = enclosingClass;
+        
         return null;
     }
 

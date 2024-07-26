@@ -42,4 +42,11 @@ public class LoxFunction : ILoxCallable
     {
         return $"<fn {_declaration.Name.Lexeme}>";
     }
+
+    public LoxFunction Bind(LoxInstance instance)
+    {
+        var environment = new Environment(_closure);
+        environment.Define("this", instance);
+        return new LoxFunction(_declaration, environment);
+    }
 }

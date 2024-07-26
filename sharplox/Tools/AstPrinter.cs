@@ -77,6 +77,11 @@ public class AstPrinter : IExpressionVisitor<string>
         return PropertyExpression("set", setExpression.Name.Lexeme, setExpression.Object, setExpression.Value);
     }
 
+    public string VisitThisExpression(ThisExpression thisExpression)
+    {
+        return "this";
+    }
+
     private string PropertyExpression(string type, string name, BaseExpression obj, BaseExpression? value = null)
     {
         var sb = new StringBuilder();

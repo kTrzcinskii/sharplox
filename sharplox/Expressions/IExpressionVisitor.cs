@@ -12,4 +12,5 @@ public interface IExpressionVisitor<T>
     public T VisitCallExpression(CallExpression callExpression);
     public T VisitGetExpression(GetExpression getExpression);
     public T VisitSetExpression(SetExpression setExpression);
+    public T VisitThisExpression(ThisExpression thisExpression);
 }

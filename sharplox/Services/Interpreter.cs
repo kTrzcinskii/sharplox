@@ -187,6 +187,11 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return value;
     }
 
+    public object? VisitThisExpression(ThisExpression thisExpression)
+    {
+        return LookUpVariable(thisExpression.Keyword, thisExpression);
+    }
+
     // Statements
     private void Execute(BaseStatement statement)
     {

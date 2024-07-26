@@ -200,6 +200,9 @@ public class Parser
         if (MatchCurrent(TokenType.NUMBER, TokenType.STRING))
             return new LiteralExpression(Previous().Literal);
 
+        if (MatchCurrent(TokenType.THIS))
+            return new ThisExpression(Previous());
+        
         if (MatchCurrent(TokenType.IDENTIFIER))
             return new VariableExpression(Previous());
         
