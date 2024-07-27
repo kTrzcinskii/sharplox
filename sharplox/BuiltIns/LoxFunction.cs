@@ -9,11 +9,13 @@ public class LoxFunction : ILoxCallable
 {
     private readonly FunctionStatement _declaration;
     private readonly Environment _closure;
+    private readonly bool _isInitializer;
 
-    public LoxFunction(FunctionStatement declaration, Environment closure)
+    public LoxFunction(FunctionStatement declaration, Environment closure, bool isInitializer)
     {
         _declaration = declaration;
         _closure = closure;
+        _isInitializer = isInitializer;
     }
 
     public object? Call(Interpreter interpreter, List<object?> arguments)
@@ -27,9 +29,13 @@ public class LoxFunction : ILoxCallable
         }
         catch (ReturnException ex)
         {
+            if (_isInitializer)
+                return _closure.GetAt(0, LoxClass.ThisKeyword);
             return ex.Value;
         }
-        
+
+        if (_isInitializer)
+            return _closure.GetAt(0, LoxClass.ThisKeyword);
         return null;
     }
 
@@ -46,7 +52,7 @@ public class LoxFunction : ILoxCallable
     public LoxFunction Bind(LoxInstance instance)
     {
         var environment = new Environment(_closure);
-        environment.Define("this", instance);
-        return new LoxFunction(_declaration, environment);
+        environment.Define(LoxClass.ThisKeyword, instance);
+        return new LoxFunction(_declaration, environment, _isInitializer);
     }
 }

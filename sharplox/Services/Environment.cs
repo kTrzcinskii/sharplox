@@ -57,10 +57,10 @@ public class Environment
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
     }
 
-    public object? GetAt(int depth, Token name)
+    public object? GetAt(int depth, string name)
     {
         // At this point we don't event check if variable is defined - we assume that Resolver did its job.
-        return Ancestor(depth)._values[name.Lexeme];
+        return Ancestor(depth)._values[name];
     }
 
     private Environment Ancestor(int depth)

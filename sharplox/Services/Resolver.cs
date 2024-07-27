@@ -164,9 +164,14 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
     {
         if (_currentFunction == FunctionType.NONE)
             Lox.Error(statement.Keyword, "Can't return from top-level code.");
-        
+
         if (statement.Value != null)
+        {
+            if (_currentFunction == FunctionType.INITIALIZER)
+                Lox.Error(statement.Keyword, "Can't return value from an initializer.");
             Resolve(statement.Value);
+        }
+        
         return null;
     }
 
@@ -179,11 +184,13 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
         Define(statement.Name);
         
         BeginScope();
-        _scopes.Peek().Add("this", true);
+        _scopes.Peek().Add(LoxClass.ThisKeyword, true);
         
         foreach (var method in statement.Methods)
         {
             var declaration = FunctionType.METHOD;
+            if (method.Name.Lexeme == LoxClass.InitializerMethod)
+                declaration = FunctionType.INITIALIZER;
             ResolveFunction(method, declaration);
         }
         

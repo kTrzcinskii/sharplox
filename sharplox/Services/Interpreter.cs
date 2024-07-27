@@ -244,7 +244,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object? VisitFunctionStatement(FunctionStatement statement)
     {
-        var function = new LoxFunction(statement, _environment);
+        var function = new LoxFunction(statement, _environment, false);
         _environment.Define(statement.Name.Lexeme, function);
         return null;
     }
@@ -265,7 +265,8 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in statement.Methods)
         {
-            var function = new LoxFunction(method, _environment);
+            bool isInitializer = method.Name.Lexeme == LoxClass.InitializerMethod;
+            var function = new LoxFunction(method, _environment, isInitializer);
             methods.Add(method.Name.Lexeme, function);
         }
         
@@ -359,7 +360,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     private object? LookUpVariable(Token name, BaseExpression expression)
     {
         if (_locals.TryGetValue(expression, out int depth))
-            return _environment.GetAt(depth, name);
+            return _environment.GetAt(depth, name.Lexeme);
         return _globals.Get(name);
     }
 }
