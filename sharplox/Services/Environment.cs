@@ -71,4 +71,9 @@ public class Environment
             environment = environment!._parentEnvironment;
         return environment!;
     }
+
+    public Environment? GetParent()
+    {
+        return _parentEnvironment;
+    }
 }

@@ -5,14 +5,17 @@ namespace sharplox.BuiltIns;
 public class LoxClass : ILoxCallable
 {
     public const string ThisKeyword = "this";
+    public const string SuperKeyword = "super";
     public const string InitializerMethod = "init";
     
     private readonly string _name;
+    private readonly LoxClass? _baseClass;
     private readonly Dictionary<string, LoxFunction> _methods;
 
-    public LoxClass(string name, Dictionary<string, LoxFunction> methods)
+    public LoxClass(string name, LoxClass? baseClass, Dictionary<string, LoxFunction> methods)
     {
         _name = name;
+        _baseClass = baseClass;
         _methods = methods;
     }
 
@@ -43,6 +46,10 @@ public class LoxClass : ILoxCallable
     {
         if (_methods.TryGetValue(name, out var method))
             return method;
+
+        if (_baseClass != null)
+            return _baseClass.FindMethod(name);
+        
         return null;
     }
 }

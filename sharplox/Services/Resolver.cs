@@ -105,6 +105,16 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
         return null;
     }
 
+    public object? VisitSuperExpression(SuperExpression superExpression)
+    {
+        if (_currentClass == ClassType.NONE) 
+            Lox.Error(superExpression.Keyword, "Can't use 'super' outside class declaration.");
+        else if (_currentClass == ClassType.CLASS)
+            Lox.Error(superExpression.Keyword, "Can't use 'super' in a class without base class.");
+        ResolveLocal(superExpression, superExpression.Keyword);
+        return null;
+    }
+
     // Statements
 
     public object? VisitPrintStatement(PrintStatement statement)
@@ -182,6 +192,17 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
         
         Declare(statement.Name);
         Define(statement.Name);
+
+        if (statement.BaseClass != null && statement.BaseClass.Name.Lexeme == statement.Name.Lexeme)
+            Lox.Error(statement.BaseClass.Name, "A class can't inherit from itself.");
+
+        if (statement.BaseClass != null)
+        {
+            _currentClass = ClassType.SUBCLASS;
+            Resolve(statement.BaseClass);
+            BeginScope();
+            _scopes.Peek().Add(LoxClass.SuperKeyword, true);
+        }
         
         BeginScope();
         _scopes.Peek().Add(LoxClass.ThisKeyword, true);
@@ -195,6 +216,9 @@ public class Resolver : IExpressionVisitor<object?>, IStatementVisitor<object?>
         }
         
         EndScope();
+        if (statement.BaseClass != null)
+            EndScope();
+        
         _currentClass = enclosingClass;
         
         return null;

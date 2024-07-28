@@ -82,6 +82,11 @@ public class AstPrinter : IExpressionVisitor<string>
         return "this";
     }
 
+    public string VisitSuperExpression(SuperExpression superExpression)
+    {
+        return $"(super {superExpression.Method.Lexeme})";
+    }
+
     private string PropertyExpression(string type, string name, BaseExpression obj, BaseExpression? value = null)
     {
         var sb = new StringBuilder();

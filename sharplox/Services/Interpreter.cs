@@ -192,6 +192,18 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return LookUpVariable(thisExpression.Keyword, thisExpression);
     }
 
+    public object? VisitSuperExpression(SuperExpression superExpression)
+    {
+        int distance = _locals[superExpression];
+        var baseClass = (LoxClass)_environment.GetAt(distance, LoxClass.SuperKeyword)!;
+        // We know that "this" in the term of the instance on which super was calles is always right inside the closure in which we store super, so we can just do 'distance - 1'
+        var instance = (LoxInstance)_environment.GetAt(distance - 1, LoxClass.ThisKeyword)!;
+        var method = baseClass.FindMethod(superExpression.Method.Lexeme);
+        if (method == null)
+            throw new RuntimeException(superExpression.Method, $"Undefinder property {superExpression.Method.Lexeme}.");
+        return method.Bind(instance);
+    }
+
     // Statements
     private void Execute(BaseStatement statement)
     {
@@ -260,8 +272,22 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object? VisitClassStatement(ClassStatement statement)
     {
+        object? baseClass = null;
+        if (statement.BaseClass != null)
+        {
+            baseClass = Evaluate(statement.BaseClass);
+            if (!(baseClass is LoxClass))
+                throw new RuntimeException(statement.BaseClass.Name, "Base class must be a class.");
+        }
+        
         _environment.Define(statement.Name.Lexeme, null);
 
+        if (statement.BaseClass != null)
+        {
+            _environment = new Environment(_environment);
+            _environment.Define(LoxClass.SuperKeyword, baseClass);
+        }
+        
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in statement.Methods)
         {
@@ -270,7 +296,10 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
             methods.Add(method.Name.Lexeme, function);
         }
         
-        var loxClass = new LoxClass(statement.Name.Lexeme, methods);
+        var loxClass = new LoxClass(statement.Name.Lexeme, (LoxClass?)baseClass ,methods);
+
+        if (statement.BaseClass != null)
+            _environment = _environment.GetParent()!;
         _environment.Assign(statement.Name, loxClass);
         return null;
     }

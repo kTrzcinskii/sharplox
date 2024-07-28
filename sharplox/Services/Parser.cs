@@ -200,6 +200,13 @@ public class Parser
         if (MatchCurrent(TokenType.NUMBER, TokenType.STRING))
             return new LiteralExpression(Previous().Literal);
 
+        if (MatchCurrent(TokenType.SUPER))
+        {
+            var keyword = Previous();
+            Consume(TokenType.DOT, "Expect '.' after 'super'.");
+            var method = Consume(TokenType.IDENTIFIER, "Expect base class method name.");
+            return new SuperExpression(keyword, method);
+        }
         if (MatchCurrent(TokenType.THIS))
             return new ThisExpression(Previous());
         
@@ -448,11 +455,17 @@ public class Parser
     private BaseStatement Class()
     {
         Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        VariableExpression? baseClass = null;
+        if (MatchCurrent(TokenType.LESS))
+        {
+            Consume(TokenType.IDENTIFIER, "Expect base class name.");
+            baseClass = new VariableExpression(Previous());
+        }
         Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
         var methods = new List<FunctionStatement>();
         while (!CheckCurrent(TokenType.RIGHT_BRACE) && !IsAtEnd())
             methods.Add(Function(FunctionType.METHOD));
         Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
-        return new ClassStatement(name, methods);
+        return new ClassStatement(name, baseClass, methods);
     }
 }
